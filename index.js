@@ -4,6 +4,7 @@
 var awsIot = require('aws-iot-device-sdk');
 
 var gettoken, updatetoken, emailcount;
+set debugmode = true;
 
 var thingShadows = awsIot.thingShadow({
 	keyPath: process.env.keyPath,
@@ -11,15 +12,15 @@ var thingShadows = awsIot.thingShadow({
 	caPath: process.env.caPath,
 	clientId: process.env.clientId,
 	region: process.env.region,
-	debug: true
+	debug: debugmode
 });
 
 thingShadows.on('connect', function() {
-	console.log('Connected!');
+	if (debugmode) console.log('Connected!');
 
 	//we need to register to our shadow
     thingShadows.register( process.env.thing, {persistentSubscribe: true}, function(){
-		console.log('Registered ' + process.env.thing );
+		if (debugmode) console.log('Registered ' + process.env.thing );
 		
 		//get the state of the dash button
 		gettoken=thingShadows.get(process.env.thing);
@@ -34,15 +35,15 @@ thingShadows.on('message', function(topic, payload) {
 });
 
 thingShadows.on('close', function() {
-	console.log('close');
+	if (debugmode) console.log('close');
 	
 	//after closing the connection we exit gracefully
 	process.exit(1);
 });
 
 thingShadows.on('status', function(thingName, stat, clientToken, stateObject) {
-	console.log('Received '+stat+' on '+thingName+': '+
-		JSON.stringify(stateObject)+' token: '+clientToken);
+	if (debugmode) console.log('Received ' + stat + ' on ' + thingName + ': ' +
+		JSON.stringify(stateObject) + ' token: ' + clientToken);
 	
 	//get the state of the dash button
 	if(clientToken == gettoken){
@@ -69,28 +70,28 @@ thingShadows.on('status', function(thingName, stat, clientToken, stateObject) {
 });
 
 thingShadows.on('delta', function(thingName, stateObject) {
-	console.log('Received delta on '+thingName+': '+
+	if (debugmode) console.log('Received delta on ' + thingName + ': ' +
 		JSON.stringify(stateObject));
 });
 
 thingShadows.on('foreignStateChange', function(thingName, operation, stateObject) {
-	console.log('foreignStateChange: '+ operation + ' on ' + thingName + ' with state ' +
+	if (debugmode) console.log('foreignStateChange: ' + operation + ' on ' + thingName + ' with state ' +
 		JSON.stringify(stateObject));
 });
 
 thingShadows.on('timeout', function(thingName, clientToken) {
-	console.log('Received timeout on '+thingName+
-		' with token: '+ clientToken);
+	if (debugmode) console.log('Received timeout on ' + thingName +
+		' with token: ' + clientToken);
 });
 
 thingShadows.on('reconnect', function() {
-	console.log('reconnect');
+	if (debugmode) console.log('reconnect');
 });
 
 thingShadows.on('offline', function() {
-	console.log('offline');
+	if (debugmode) console.log('offline');
 });
 
 thingShadows.on('error', function(error) {
-	console.log('error', error);
+	if (debugmode) console.log('error', error);
 });
